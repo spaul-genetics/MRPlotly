@@ -12,6 +12,10 @@
 #' @export
 #'
 
+#' @import plotly
+#' @import dplyr
+#' @import magrittr
+
 res.loo.plotly<-function(res_loo){
 
   res.loo.single.plotly<-function(res_loo){
@@ -38,6 +42,22 @@ res.loo.plotly<-function(res_loo){
     fig = fig%>%layout(xaxis = list(title = 'MR effect size'),
                        yaxis = list(title = '', type = 'category', categoryarray = ~SNP, categoryorder = 'trace', autorange = T))
     return(fig)
+  }
+
+  if(is.character(res_loo)){
+    if(grepl('.csv', res_loo)){
+      res_loo = read.csv(res_loo)
+    }else{
+      res_loo = read.table(res_loo, header = T)
+    }
+  }else{
+    if(!is.data.frame(res_loo)) stop('res_loo has to be either a data.frame or file containing the data')
+  }
+
+  required_col<-c('id.exposure', 'id.outcome', 'b', 'se','SNP')
+  missing_col = setdiff(required_col, names(res_loo))
+  if(length(missing_col)>0){
+    stop(paste0('The res_single output should contain ', paste(missing_col, sep = ', '),' columns.'))
   }
 
   plot_names = expand.grid(exposures = unique(res_loo$id.exposure), outcomes = unique(res_loo$id.outcome))

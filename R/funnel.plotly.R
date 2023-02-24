@@ -12,6 +12,9 @@
 #'
 #' @param `res_single`
 #'
+#' @import plotly
+#' @import dplyr
+#' @import magrittr
 
 
 

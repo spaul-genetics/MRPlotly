@@ -12,6 +12,9 @@
 #' This function gives plotly object based on the results of `mr_singlesnp`. The forest plot compares the MR estimates using the different MR methods against the single SNP tests.
 #' @param res_single Output data.frame from `mr_singlesnp` or filename containing the result in csv format
 #' @export
+#' @import plotly
+#' @import dplyr
+#' @import magrittr
 #'
 #'
 #'

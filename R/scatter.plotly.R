@@ -15,6 +15,11 @@
 #' @export
 #'
 #'
+#' @import plotly
+#' @import dplyr
+#' @import magrittr
+#'
+#'
 
 scatter.plotly<-function(res, dat){
 
@@ -42,6 +47,42 @@ scatter.plotly<-function(res, dat){
                                     error_y = ~list(array = zero))%>%
       layout(legend = list(x = 0.7, y = 1))
     return(fig)
+  }
+
+
+  if(is.character(res)){
+    if(grepl('.csv', res)){
+      res = read.csv(res)
+    }else{
+      res = read.table(res, header = T)
+    }
+  }else{
+    if(!is.data.frame(res)) stop('res has to be either a data.frame or file containing the data')
+  }
+
+  if(is.character(dat)){
+    if(grepl('.csv', dat)){
+      dat = read.csv(dat)
+    }else{
+      dat = read.table(dat, header = T)
+    }
+  }else{
+    if(!is.data.frame(dat)) stop('res has to be either a data.frame or file containing the data')
+  }
+
+  dat_required_col <- c('beta.exposure', 'beta.outcome', 'id.exposure', 'id.outcome', 'exposure', 'outcome', 'se.exposure', 'se.outcome', 'SNP', 'mr_keep')
+  missing_fields = setdiff(dat_required_col, names(dat))
+
+  if(length(missing_fields)>0){
+    stop(paste0('The harmonized data should contain ', paste(missing_fields, sep = ', '),' columns.'))
+  }
+
+  res_required_col <- c('method', 'outcome', 'id.outcome', 'exposure', 'id.exposure', 'b')
+
+  missing_fields = setdiff(res_required_col, names(res))
+
+  if(length(missing_fields)>0){
+    stop(paste0('The mr result data should contain ', paste(missing_fields, sep = ', '),' columns.'))
   }
 
   index = dat$beta.exposure < 0
