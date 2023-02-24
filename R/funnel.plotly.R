@@ -18,7 +18,25 @@
 
 
 funnel.plotly<-function(res_single){
+  # Check if input a data.frame or a file path. Read if it is a file.
+  if(is.character(res_single)){
+    if(grepl('.csv', res_single)){
+      res_single = read.csv(res_single)
+    }else{
+      res_single = read.table(res_single, header = T)
+    }
+  }else{
+    if(!is.data.frame(res_single)) stop('res_single has to be either a data.frame or file containing the data')
+  }
 
+  # Check if all required columns are available
+  required_fields = c('SNP', 'b', 'se', 'id.exposure','id.outcome')
+  missing_fields = setdiff(required_fields, names(res_single))
+  if(length(missing_fields)>0){
+    stop(paste0('The res_single output should contain ', paste(missing_fields, sep = ', '),' columns.'))
+  }
+
+  # Function for a single plot
   funnel.plotly.single<-function(plot_data){
     if (sum(!grepl("All", plot_data$SNP)) < 2) {
       return(blank_plot("Insufficient number of SNPs"))
@@ -42,9 +60,11 @@ funnel.plotly<-function(res_single){
 
   }
 
+  # Make grid for each pair of exposure and outcome
   plot_names = expand.grid(exposures = unique(res_single$id.exposure), outcomes = unique(res_single$id.outcome))
   plot_names$names = paste(plot_names$exposures, plot_names$outcomes, sep = '.')
 
+  # If only one outcome-exposure combination found return a single figure else return a list
   if(nrow(plot_names)==1){
     return(funnel.plotly.single(
       res_single%>%dplyr::filter(id.exposure == plot_names$exposures[1] & id.outcome == plot_names$outcomes[1]))

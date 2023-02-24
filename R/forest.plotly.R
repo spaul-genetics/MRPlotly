@@ -20,27 +20,6 @@ forest.plotly<-function(res_single){
 
 
   forest.plotly.single<-function(res_single, nticks = 40){
-
-    if(is.character(res_single)){
-      if(grepl('.csv', res_single)){
-        res_single = read.csv(res_single)
-      }else{
-        res_single = read.table(res_single, header = T)
-      }
-    }else{
-      if(!is.data.frame(res_single)) stop('res_single has to be either a data.frame or file containing the data')
-    }
-
-    required_fields = c('SNP', 'b', 'se')
-
-    required_fields = c('SNP', 'b', 'se')
-    missing_fields = setdiff(required_fields, names(res_single))
-
-    if(length(missing_fields)>0){
-      stop(paste0('The res_single output should contain ', paste(missing_fields, sep = ', '),' columns.'))
-    }
-
-
     res_single$Type = factor(ifelse(grepl('All', res_single$SNP), 'All','SNP'), levels = c('SNP','All'))
     res_single = res_single%>%arrange(b)
     snps = unique(res_single$SNP)
@@ -49,17 +28,36 @@ forest.plotly<-function(res_single){
 
 
     fig1 = res_single%>%filter(Type == 'SNP')%>%
-      plot_ly(x = ~b, y = ~SNP, color = ~Type, type = 'scatter', mode = 'markers', error_x = ~list(array = se))%>%
-      layout(xaxis = list(title = 'MR effect size'), yaxis = list(title = '', categoryorder = 'trace'), showlegend = F)
+      plot_ly(x = ~b, y = ~SNP, color = ~Type,
+              type = 'scatter', mode = 'markers',
+              error_x = ~list(array = se))%>%
+      layout(xaxis = list(title = 'MR effect size'),
+             yaxis = list(title = '', categoryorder = 'trace'),
+             showlegend = F)
 
     fig2 = res_single%>%filter(Type == 'All')%>%
-      plot_ly(x = ~b, y = ~SNP, color = ~Type, type = 'scatter', mode = 'markers', error_x = ~list(array = se))%>%
-      layout(xaxis = list(title = 'MR effect size'), yaxis = list(title = '', categoryorder = 'trace'), showlegend = F)
+      plot_ly(x = ~b, y = ~SNP, color = ~Type,
+              type = 'scatter', mode = 'markers',
+              error_x = ~list(array = se))%>%
+      layout(xaxis = list(title = 'MR effect size'),
+             yaxis = list(title = '', categoryorder = 'trace'),
+             showlegend = F)
 
     fig = subplot(fig1, fig2, nrows = 2, shareX = T, heights = c(1-sum(res_single$Type=='All')*0.03/2,sum(res_single$Type=='All')*0.03/2), margin = 0)
 
     return(fig)
   }
+
+  if(is.character(res_single)){
+    if(grepl('.csv', res_single)){
+      res_single = read.csv(res_single)
+    }else{
+      res_single = read.table(res_single, header = T)
+    }
+  }else{
+    if(!is.data.frame(res_single)) stop('res_single has to be either a data.frame or file containing the data')
+  }
+
 
 
   if(is.character(res_single)){
@@ -79,7 +77,8 @@ forest.plotly<-function(res_single){
     stop(paste0('The res_single output should contain ', paste(missing_fields, sep = ', '),' columns.'))
   }
 
-  plot_names = expand.grid(exposures = unique(res_single$id.exposure), outcomes = unique(res_single$id.outcome))
+  plot_names = expand.grid(exposures = unique(res_single$id.exposure),
+                           outcomes = unique(res_single$id.outcome))
   plot_names$names = paste(plot_names$exposures, plot_names$outcomes, sep = '.')
 
 

@@ -20,6 +20,7 @@ bmi_exp_dat <- extract_instruments(outcomes = c('ieu-a-2', 'ieu-a-9', 'ieu-a-12'
 chd_out_dat <- extract_outcome_data(snps = bmi_exp_dat$SNP, outcomes = 'ieu-a-7')
 dat <- harmonise_data(bmi_exp_dat, chd_out_dat)
 res = mr(dat)
+scatter.plotly(res, dat)
 
 }
 \author{
